@@ -1,0 +1,50 @@
+import camion.*
+import cosas.*
+
+describe "Gestión de Carga del Camión" {
+
+    test "Cargar y Descargar" {
+        assert.that(camion.cosasCargadas().isEmpty()) 
+    
+        camion.cargar(bumblebee)
+
+        assert.that(camion.cosasCargadas().contains(bumblebee))
+
+        camion.cargar(knightRider)
+
+        assert.that(camion.cosasCargadas().contains(bumblebee))
+        assert.that(camion.cosasCargadas().contains(knightRider))
+        assert.equals(2, camion.cosasCargadas().size())
+
+        camion.descargar(bumblebee)
+
+        assert.notThat(camion.cosasCargadas().contains(bumblebee))
+        assert.that(camion.cosasCargadas().contains(knightRider))
+        assert.equals(1, camion.cosasCargadas().size())
+
+        assert.throwsExceptionWithMessage("La cosa ya estaba cargada", {
+            camion.cargar(knightRider)
+        })
+
+        assert.throwsExceptionWithMessage("La cosa no estaba cargada", {
+            camion.descargar(bumblebee)
+        })
+
+    }
+
+    test "Peso Par" {
+        assert.that(camion.cosasCargadas().isEmpty()) 
+    
+        camion.cargar(bumblebee)
+
+        arenaAGranel.pesoActual(50)
+        camion.cargar(arenaAGranel)
+        assert.that(camion.pesoTotalPar()) 
+
+        camion.descargar(arenaAGranel)
+
+        arenaAGranel.pesoActual(51)
+        camion.cargar(arenaAGranel)
+        assert.notThat(camion.pesoTotalPar()) 
+    }
+}

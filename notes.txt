@@ -1,0 +1,2 @@
+Tenemos objetos, que son cosas que el camion puede transportar. Amerita Clase?
+
