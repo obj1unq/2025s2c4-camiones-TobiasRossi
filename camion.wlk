@@ -1,5 +1,6 @@
 import cosas.*
 
+
 object camion {
 	const property cosas = #{} 
 
@@ -47,7 +48,7 @@ object camion {
 	}
 
 	method cosasMasPeligrosasQue(peligro) {
-		return self.cosasCargadas().filter({ cosa => cosa.nivelPeligrosidad() > peligro})
+		return self.cosasCargadas().any({ cosa => cosa.nivelPeligrosidad() > peligro})
 	}
 
 	method cosasMasPeligrosasQueOtra(otraCosa) {
@@ -55,7 +56,7 @@ object camion {
 	}
 
 	method esAptoParaRuta(nivel) {
-		return not self.excesoDePeso() && self.cosasMasPeligrosasQue(nivel).isEmpty()
+		return not self.excesoDePeso() && not self.cosasMasPeligrosasQue(nivel)
 	}
 
 	method hayAlgoCargadoQuePesaEntre(minimo,maximo) {
@@ -73,5 +74,42 @@ object camion {
 	method listaDePesosDeCosasCargadas() {
 		return self.cosasCargadas().map({cosa => cosa.peso()})
 	}
+
+	method sufrirAccidente() {
+		self.cosasCargadas().forEach({cosa => cosa.accidente()})
+	}
+
+	method transportar(destino,camino) {
+		if (!camino.puedeAndar(self)) {
+            throw new Exception(message = "El camión no puede andar por este camino")
+		}
+		destino.dejarEnAlmacen(self.cosasCargadas().asSet())
+		self.cosasCargadas().removeAll(self.cosasCargadas())
+	}
+
+}
+
+object almacen {
+	const property cosasGuardadas = #{}
+    
+    method dejarEnAlmacen(cosas) {
+        self.cosasGuardadas().addAll(cosas)
+    }
+}
+
+object ruta9 {
+		const nivelPeligrosidad = 20
+
+    method puedeAndar(unCamion) {
+        return unCamion.esAptoParaRuta(nivelPeligrosidad)
+    }
+}
+
+object caminosVecinales {
+    var property pesoMaximoSoportado = 1500 
+    
+    method puedeAndar(unCamion) {
+        return unCamion.pesoTotalDelCamion() <= caminosVecinales.pesoMaximoSoportado
+    }
 }
 

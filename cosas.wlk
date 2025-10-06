@@ -1,12 +1,16 @@
+import camion.*
+
+
 object knightRider {
 	method peso() = 500
 	method nivelPeligrosidad() = 10
 	method bulto() = 1
+	method accidente() {}
 }
 
 object arenaAGranel {
 
-	var pesoActual = null
+	var pesoActual = 0
 
 	method pesoActual(_pesoActual) {
 		pesoActual = _pesoActual
@@ -15,6 +19,7 @@ object arenaAGranel {
 	method peso() = pesoActual
 	method nivelPeligrosidad() = 10
 	method bulto() = 1
+	method accidente() { pesoActual = pesoActual + 20 }
 }
 
 object bumblebee {
@@ -23,20 +28,22 @@ object bumblebee {
 	method peso() = 800
     method nivelPeligrosidad() {if(estaTransformadoEnAuto) 15 else 30}
 	method bulto() = 2
+	method accidente() {if(estaTransformadoEnAuto) self.estaTransformadoEnAuto(false) else self.estaTransformadoEnAuto(true)}
 }	
 
 object paqueteDeLadrillos {
-	var cantidadDeLadrillos = null
+	var property cantidadDeLadrillos = 0
 	const pesoPorLadrillo = 2
-
-	method cantidadDeLadrillos(_cantidadDeLadrillos) {
-		cantidadDeLadrillos = _cantidadDeLadrillos
-	}
 
 	method peso() = pesoPorLadrillo * cantidadDeLadrillos
 	method nivelPeligrosidad() = 2
 
 	method bulto() { return if (cantidadDeLadrillos <= 100) 1 else if (cantidadDeLadrillos <= 300) 2 else 3}
+
+	method accidente() {
+		const ladrillosPerdidosPorAccidente = 12.min(cantidadDeLadrillos)
+		cantidadDeLadrillos = cantidadDeLadrillos - ladrillosPerdidosPorAccidente
+	}
 }
 
 object bateriaAntiaerea {
@@ -44,12 +51,13 @@ object bateriaAntiaerea {
 
 	method peso() { if (tieneMisiles) 300 else 200}
 	method nivelPeligrosidad() { if (tieneMisiles) 100 else 0}
-	method bulto() {return if (tieneMisiles) 2 else 1} 
+	method bulto() {return if (tieneMisiles) 2 else 1}
+	method accidente() { self.tieneMisiles(false) }
 }
 
 object residuosRadioactivos {
 
-	var pesoActual = null
+	var pesoActual = 0
 
 	method pesoActual(_pesoActual) {
 		pesoActual = _pesoActual
@@ -59,6 +67,10 @@ object residuosRadioactivos {
 	method peso() = pesoActual
 	method nivelPeligrosidad() = 200
 	method bulto() = 1
+
+	method accidente() {
+        pesoActual = pesoActual + 15
+    }
 }
 
 object contenedorPortuario {
@@ -94,6 +106,10 @@ object contenedorPortuario {
 	}
 
 	method bulto() = self.cosasDentro().sum({cosa => cosa.bulto()}) + bultoContenedor
+
+	method accidente() {
+		self.cosasDentro().forEach({ cosa => cosa.accidente()})
+	}
 }
 
 object embalajeDeSeguridad {
@@ -126,4 +142,5 @@ object embalajeDeSeguridad {
     }
 
 	method bulto() = 2
+	method accidente() {}
 }

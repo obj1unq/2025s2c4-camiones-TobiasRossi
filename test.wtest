@@ -286,4 +286,95 @@ describe "Gestión de Carga del Camión" {
         camion.descargar(paqueteDeLadrillos)
         camion.descargar(arenaAGranel)
     }
+
+    test "Accidente Caso 1" {
+        assert.that(camion.cosasCargadas().isEmpty())
+
+        contenedorPortuario.cargar(knightRider)
+        bumblebee.estaTransformadoEnAuto(true)
+        contenedorPortuario.cargar(bumblebee)
+
+        camion.cargar(contenedorPortuario)
+
+        residuosRadioactivos.pesoActual(30)
+        embalajeDeSeguridad.envolver(residuosRadioactivos)
+
+        camion.cargar(embalajeDeSeguridad)
+
+        arenaAGranel.pesoActual(50)
+        camion.cargar(arenaAGranel)
+
+        paqueteDeLadrillos.cantidadDeLadrillos(100)
+        camion.cargar(paqueteDeLadrillos)
+
+        bateriaAntiaerea.tieneMisiles(true)
+        camion.cargar(bateriaAntiaerea)
+
+        camion.sufrirAccidente()
+
+        assert.notThat(bumblebee.estaTransformadoEnAuto())
+        assert.equals(30, residuosRadioactivos.peso())
+        assert.equals(70, arenaAGranel.peso())
+        assert.equals(88, paqueteDeLadrillos.cantidadDeLadrillos())
+        assert.notThat(bateriaAntiaerea.tieneMisiles())
+
+        contenedorPortuario.descargar(knightRider)
+        contenedorPortuario.descargar(bumblebee)
+        camion.descargar(contenedorPortuario)
+        embalajeDeSeguridad.desenvolver(residuosRadioactivos)
+        camion.descargar(embalajeDeSeguridad)
+        camion.descargar(arenaAGranel)
+        camion.descargar(paqueteDeLadrillos)
+        camion.descargar(bateriaAntiaerea)
+
+        assert.that(camion.cosasCargadas().isEmpty())
+    }
+
+    test "Accidente Caso 2" {
+        assert.that(camion.cosasCargadas().isEmpty())
+
+        bumblebee.estaTransformadoEnAuto(false)
+        residuosRadioactivos.pesoActual(30)
+        paqueteDeLadrillos.cantidadDeLadrillos(10)
+        bateriaAntiaerea.tieneMisiles(false)
+
+        camion.cargar(bumblebee)
+        camion.cargar(residuosRadioactivos)
+        camion.cargar(paqueteDeLadrillos)
+        camion.cargar(bateriaAntiaerea)
+
+        camion.sufrirAccidente()
+
+        assert.that(bumblebee.estaTransformadoEnAuto())
+        assert.equals(45, residuosRadioactivos.peso())
+        assert.equals(0, paqueteDeLadrillos.cantidadDeLadrillos())
+        assert.notThat(bateriaAntiaerea.tieneMisiles())
+
+        camion.descargar(bumblebee)
+        camion.descargar(residuosRadioactivos)
+        camion.descargar(paqueteDeLadrillos)
+        camion.descargar(bateriaAntiaerea)
+    }
+}
+
+describe "Casos Almacenar" {
+    test "Caso: ruta 9 exitoso" {
+        assert.that(camion.cosasCargadas().isEmpty())
+        assert.that(almacen.cosasGuardadas().isEmpty())
+
+        almacen.dejarEnAlmacen(#{knightRider,residuosRadioactivos})
+
+        bumblebee.estaTransformadoEnAuto(true)
+        arenaAGranel.pesoActual(50)
+
+        camion.cargar(bumblebee)
+        camion.cargar(arenaAGranel)
+
+        camion.transportar(almacen, ruta9)
+
+        assert.that(camion.cosasCargadas().isEmpty())
+
+        assert.equals(
+            #{knightRider, residuosRadioactivos, bumblebee, arenaAGranel},almacen.cosasGuardadas().asSet())
+    }
 }
